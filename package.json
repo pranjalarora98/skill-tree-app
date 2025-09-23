@@ -10,9 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@xyflow/react": "^12.8.5",
+    "dagre": "^0.8.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-flow": "^1.0.3"
+    "react-flow": "^1.0.3",
+    "react-hot-toast": "^2.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
