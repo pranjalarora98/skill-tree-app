@@ -1,12 +1,40 @@
-# React + Vite
+# 🌳 Skill Tree App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://react.dev/)  
+[![React Flow](https://img.shields.io/badge/React%20Flow-@xyflow%2Freact-blueviolet)](https://reactflow.dev/)  
+[![ESLint](https://img.shields.io/badge/Linting-ESLint-4B32C3?logo=eslint)](https://eslint.org/)  
+[![Prettier](https://img.shields.io/badge/Code%20Style-Prettier-f7b93e?logo=prettier)](https://prettier.io/)  
+[![Jest](https://img.shields.io/badge/Tests-Jest-C21325?logo=jest)](https://jestjs.io/)  
 
-Currently, two official plugins are available:
+A visual **Skill Tree Builder** built with React and [React Flow](https://reactflow.dev/).  
+It allows users to create, connect, and unlock skills in a game-like tree structure.  
+The app is fully keyboard accessible, tested with Jest, and follows code quality standards with ESLint and Prettier.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 🎨 Interactive **skill nodes** (name, description, cost/level).  
+- ➕ Add new skills via a **modal form**.  
+- 🔗 Connect nodes to define prerequisites.  
+- 🔓 Unlock / lock skills with prerequisite validation.  
+- ♿ **Accessibility first**:  
+  - ARIA roles and labels  
+  - Keyboard navigation (Enter/Space to toggle, Escape to close modals)  
+- 💾 Data persistence using **localStorage**.  
+- ✅ Code quality enforced with **ESLint + Prettier**.  
+- 🧪 Unit tested with **Jest + React Testing Library**.  
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (>= 18.x recommended)
+- npm or yarn
+
+### Installation
+```bash
+git clone https://github.com/your-username/skill-tree-app.git
+cd skill-tree-app
+npm install
