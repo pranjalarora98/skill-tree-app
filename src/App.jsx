@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -39,6 +39,8 @@ function App() {
 
   const [rfInstance, setRfInstance] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const addSkillButtonRef = useRef(null);
+  const autoLayoutButtonRef = useRef(null);
 
   useEffect(() => {
     setStoredNodes(nodes);
@@ -73,6 +75,7 @@ function App() {
         return newNodes;
       });
       setShowForm(false);
+      addSkillButtonRef.current.focus(); // Return focus to Add Skill button
     },
     [setNodes]
   );
@@ -87,6 +90,7 @@ function App() {
               : n
           )
         );
+        toast.success('Skill locked.', { id: 'node-status' });
         return;
       }
 
@@ -99,7 +103,9 @@ function App() {
       });
 
       if (!allPrereqsComplete) {
-        toast.error('Cannot unlock: Complete prerequisites first!');
+        toast.error('Cannot unlock: Complete prerequisites first!', {
+          id: 'node-error',
+        });
         return;
       }
 
@@ -108,25 +114,79 @@ function App() {
           n.id === node.id ? { ...n, data: { ...n.data, completed: true } } : n
         )
       );
-      toast.success('Skill unlocked!');
+      toast.success('Skill unlocked!', { id: 'node-status' });
     },
     [edges, nodes, setNodes]
   );
 
+  const onNodeKeyDown = useCallback(
+    (event, node) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onNodeClick(event, node);
+      }
+    },
+    [onNodeClick]
+  );
+
   const onLayout = useCallback(() => {
     console.log('Auto Layout triggered');
+    // Placeholder for auto-layout logic
+    toast.success('Auto layout applied.', { id: 'layout-status' });
   }, []);
 
+  const handleAddSkillKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setShowForm(true);
+    }
+  };
+
+  const handleAutoLayoutKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onLayout();
+    }
+  };
+
   return (
-    <div className="app">
+    <div className="app" role="application" aria-label="Skill Tree Application">
       <ReactFlowProvider>
-        <div className="controls">
-          <button onClick={() => setShowForm(true)}>Add Skill</button>
-          <button onClick={onLayout}>Auto Layout</button>
+        <div
+          className="controls"
+          role="toolbar"
+          aria-label="Skill tree controls"
+        >
+          <button
+            ref={addSkillButtonRef}
+            onClick={() => setShowForm(true)}
+            onKeyDown={handleAddSkillKeyDown}
+            aria-label="Add a new skill"
+          >
+            Add Skill
+          </button>
+          <button
+            ref={autoLayoutButtonRef}
+            onClick={onLayout}
+            onKeyDown={handleAutoLayoutKeyDown}
+            aria-label="Apply auto layout to skill tree"
+          >
+            Auto Layout
+          </button>
         </div>
-        <div className="react-flow-container">
+        <div
+          className="react-flow-container"
+          role="region"
+          aria-label="Skill tree diagram"
+        >
           <ReactFlow
-            nodes={nodes}
+            nodes={nodes.map((node) => ({
+              ...node,
+              data: {
+                ...node.data,
+                onKeyDown: (event) => onNodeKeyDown(event, node),
+              },
+            }))}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
@@ -138,11 +198,17 @@ function App() {
           >
             <Background />
             <Controls />
-            <MiniMap />
+            <MiniMap aria-label="Mini map of skill tree" />
           </ReactFlow>
         </div>
         {showForm && (
-          <SkillForm onSubmit={onAddNode} onCancel={() => setShowForm(false)} />
+          <SkillForm
+            onSubmit={onAddNode}
+            onCancel={() => {
+              setShowForm(false);
+              addSkillButtonRef.current.focus();
+            }}
+          />
         )}
       </ReactFlowProvider>
     </div>

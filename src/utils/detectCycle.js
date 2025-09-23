@@ -12,7 +12,7 @@ export function detectCycle(graph) {
             if (!visited.has(neighbor)) {
                 if (dfs(neighbor)) return true;
             } else if (recStack.has(neighbor)) {
-                return true; // Back edge
+                return true;
             }
         }
 
