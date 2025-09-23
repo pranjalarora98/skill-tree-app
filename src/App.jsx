@@ -15,6 +15,7 @@ import SkillForm from './components/SkillForm';
 import SkillNode from './components/SkillNode';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import './App.css';
+import { SKILL_CONSTANTS } from '../Constant';
 
 const nodeTypes = { skill: SkillNode };
 const initialNodes = [];
@@ -22,17 +23,23 @@ const initialEdges = [];
 
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    useLocalStorage('skillTreeNodes', initialNodes)[0]
+    useLocalStorage(SKILL_CONSTANTS.SKILL_TREE_NODES, initialNodes)[0]
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    useLocalStorage('skillTreeEdges', initialEdges)[0]
+    useLocalStorage(SKILL_CONSTANTS.SKILL_TREE_EDGES, initialEdges)[0]
   );
-  const [, setStoredNodes] = useLocalStorage('skillTreeNodes', initialNodes);
-  const [, setStoredEdges] = useLocalStorage('skillTreeEdges', initialEdges);
+  const [, setStoredNodes] = useLocalStorage(
+    SKILL_CONSTANTS.SKILL_TREE_NODES,
+    initialNodes
+  );
+  const [, setStoredEdges] = useLocalStorage(
+    SKILL_CONSTANTS.SKILL_TREE_EDGES,
+    initialEdges
+  );
+
   const [rfInstance, setRfInstance] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  // Persist on change
   useEffect(() => {
     setStoredNodes(nodes);
     console.log('Nodes updated:', nodes);
@@ -56,7 +63,7 @@ function App() {
       const id = Date.now().toString();
       const node = {
         id,
-        type: 'skill',
+        type: SKILL_CONSTANTS.NODE_TYPE,
         data: { ...newNode, completed: false },
         position: { x: 100, y: 100 },
       };
@@ -107,7 +114,6 @@ function App() {
   );
 
   const onLayout = useCallback(() => {
-    // Placeholder for layout logic
     console.log('Auto Layout triggered');
   }, []);
 
@@ -120,7 +126,7 @@ function App() {
         </div>
         <div className="react-flow-container">
           <ReactFlow
-            nodes={nodes} // Use raw nodes instead of layoutedNodes
+            nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
