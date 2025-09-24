@@ -21,6 +21,8 @@ import '@xyflow/react/dist/style.css';
 import toast from 'react-hot-toast';
 import { Button, Dialog, DialogContent, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme';
 import SkillForm from './components/SkillForm';
 import { hasCycle } from './utils/detectCycle';
 import { applySearchHighlighting } from './utils/searchUtil';
@@ -32,35 +34,6 @@ import { SKILL_CONSTANTS } from '../Constant';
 const nodeTypes = { [SKILL_CONSTANTS.NODE_TYPE]: SkillNode };
 const initialNodes = [];
 const initialEdges = [];
-
-const PrimaryButtonStyles = {
-  fontWeight: 'bold',
-  textTransform: 'none',
-  fontSize: '1rem',
-  borderRadius: '8px',
-  padding: '8px 16px',
-  color: 'white',
-  background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-  boxShadow: '0 2px 4px 1px rgba(33, 203, 243, .3)',
-  marginLeft: '10px',
-  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-  '&:hover': {
-    background: 'linear-gradient(45deg, #1976D2 30%, #00B8D4 90%)',
-    boxShadow: '0 4px 6px 2px rgba(33, 203, 243, .4)',
-    transform: 'translateY(-2px)',
-  },
-};
-
-const ResetButtonStyles = {
-  ...PrimaryButtonStyles,
-  background: 'linear-gradient(45deg, #e63946 30%, #f77f00 90%)',
-  boxShadow: '0 2px 4px 1px rgba(230, 57, 70, .3)',
-  '&:hover': {
-    background: 'linear-gradient(45deg, #d62828 30%, #e57300 90%)',
-    boxShadow: '0 4px 6px 2px rgba(230, 57, 70, .4)',
-    transform: 'translateY(-2px)',
-  },
-};
 
 function App() {
   const [storedNodes, setStoredNodes] = useLocalStorage(
@@ -255,100 +228,115 @@ function App() {
 
   return (
     <div className="app" role="application" aria-label="Skill Tree Application">
-      <ReactFlowProvider>
-        <div className="header-container">
-          <h1 className="welcome-text">Welcome to SkillBuilder</h1>
-          <div className="search-controls">
-            {isSearchVisible && (
-              <TextField
-                variant="outlined"
-                placeholder="Search by skill name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  style: {
-                    color: '#fff',
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    borderRadius: '8px',
-                    width: '200px',
-                  },
-                }}
+      <ThemeProvider theme={theme}>
+        <ReactFlowProvider>
+          <div className="header-container">
+            <h1 className="welcome-text">Welcome to SkillBuilder</h1>
+            <div className="search-controls">
+              {isSearchVisible && (
+                <TextField
+                  className="search-field"
+                  variant="outlined"
+                  placeholder="Search by skill name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              )}
+              <Button
+                ref={addSkillButtonRef}
+                variant="contained"
+                onClick={() => setShowForm(true)}
+                onKeyDown={handleAddSkillKeyDown}
+                startIcon={<AddIcon />}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: '#00bcd4' },
-                    '&:hover fieldset': { borderColor: '#00e5ff' },
-                    '&.Mui-focused fieldset': { borderColor: '#00e5ff' },
+                  ...theme.components.MuiButton.styleOverrides.root,
+                  fontWeight: 'bold',
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  color: 'white',
+                  background:
+                    'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                  boxShadow: '0 2px 4px 1px rgba(33, 203, 243, .3)',
+                  marginLeft: '10px',
+                  transition:
+                    'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                  '&:hover': {
+                    background:
+                      'linear-gradient(45deg, #1976D2 30%, #00B8D4 90%)',
+                    boxShadow: '0 4px 6px 2px rgba(33, 203, 243, .4)',
+                    transform: 'translateY(-2px)',
                   },
                 }}
-              />
-            )}
-            <Button
-              ref={addSkillButtonRef}
-              variant="contained"
-              onClick={() => setShowForm(true)}
-              onKeyDown={handleAddSkillKeyDown}
-              startIcon={<AddIcon />}
-              sx={PrimaryButtonStyles}
-            >
-              Add New Skill
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleReset}
-              sx={ResetButtonStyles}
-            >
-              Clear
-            </Button>
+              >
+                Add New Skill
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleReset}
+                sx={{
+                  ...theme.components.MuiButton.styleOverrides.root,
+                  background:
+                    'linear-gradient(45deg, #e63946 30%, #f77f00 90%)',
+                  boxShadow: '0 2px 4px 1px rgba(230, 57, 70, .3)',
+                  '&:hover': {
+                    background:
+                      'linear-gradient(45deg, #d62828 30%, #e57300 90%)',
+                    boxShadow: '0 4px 6px 2px rgba(230, 57, 70, .4)',
+                    transform: 'translateY(-2px)',
+                  },
+                }}
+              >
+                Clear
+              </Button>
+            </div>
           </div>
-        </div>
-        <div
-          className="react-flow-container"
-          role="region"
-          aria-label="Skill tree diagram"
-        >
-          <ReactFlow
-            nodes={nodesWithAccessibility}
-            edges={highlightedEdges}
-            onNodesChange={handleNodesChange}
-            onEdgesChange={handleEdgesChange}
-            onConnect={handleConnect}
-            onNodeClick={handleNodeToggle}
-            nodeTypes={nodeTypes}
-            fitView
+          <div
+            className="react-flow-container"
+            role="region"
+            aria-label="Skill tree diagram"
           >
-            <Background
-              color="#00bcd4"
-              style={{ background: 'rgba(0, 0, 0, 0.1)' }}
-            />
-            <Controls />
-            <MiniMap aria-label="Mini map of skill tree" />
-          </ReactFlow>
-        </div>
-        {showForm && (
-          <Dialog
-            open={showForm}
-            onClose={() => setShowForm(false)}
-            maxWidth="md"
-            sx={{
-              '& .MuiDialog-paper': {
-                backgroundColor: 'none',
-                borderRadius: '12px',
-                boxShadow: 'none',
-                padding: '20px',
-                width: 500,
-                background: 'none',
-              },
-            }}
-          >
-            <DialogContent>
-              <SkillForm
-                onSubmit={handleAddNode}
-                onCancel={() => setShowForm(false)}
+            <ReactFlow
+              nodes={nodesWithAccessibility}
+              edges={highlightedEdges}
+              onNodesChange={handleNodesChange}
+              onEdgesChange={handleEdgesChange}
+              onConnect={handleConnect}
+              onNodeClick={handleNodeToggle}
+              nodeTypes={nodeTypes}
+              fitView
+            >
+              <Background
+                color="#00bcd4"
+                style={{ background: 'rgba(0, 0, 0, 0.1)' }}
               />
-            </DialogContent>
-          </Dialog>
-        )}
-      </ReactFlowProvider>
+              <Controls />
+              <MiniMap aria-label="Mini map of skill tree" />
+            </ReactFlow>
+          </div>
+          {showForm && (
+            <Dialog
+              open={showForm}
+              onClose={() => setShowForm(false)}
+              maxWidth="md"
+              sx={{
+                '& .MuiDialog-paper': {
+                  padding: '20px',
+                  width: 500,
+                },
+              }}
+            >
+              <DialogContent>
+                <SkillForm
+                  onSubmit={handleAddNode}
+                  onCancel={() => setShowForm(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
+        </ReactFlowProvider>
+      </ThemeProvider>
     </div>
   );
 }
