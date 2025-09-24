@@ -1,4 +1,54 @@
 import React, { useState, useEffect, useRef } from 'react';
+import {
+  TextField,
+  Button,
+  Stack,
+  Box,
+  Typography,
+  Paper,
+} from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#6200ea',
+    },
+    secondary: {
+      main: '#03dac6',
+    },
+    background: {
+      paper: '#fff',
+    },
+  },
+  typography: {
+    fontFamily: 'Roboto, sans-serif',
+    h6: {
+      fontWeight: 600,
+      color: '#424242',
+    },
+  },
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 8,
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 20,
+          fontWeight: 600,
+          textTransform: 'none',
+        },
+      },
+    },
+  },
+});
 
 function SkillForm({ onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -10,7 +60,7 @@ function SkillForm({ onSubmit, onCancel }) {
   const nameInputRef = useRef(null);
 
   useEffect(() => {
-    nameInputRef.current.focus();
+    nameInputRef.current?.focus();
   }, []);
 
   const handleChange = (e) => {
@@ -28,11 +78,13 @@ function SkillForm({ onSubmit, onCancel }) {
       nameInputRef.current.focus();
       return;
     }
+
     onSubmit({
       name: formData.name.trim(),
       description: formData.description.trim(),
       cost: formData.cost ? Number(formData.cost) : 0,
     });
+
     setFormData({ name: '', description: '', cost: '' });
     setError('');
   };
@@ -44,75 +96,94 @@ function SkillForm({ onSubmit, onCancel }) {
   };
 
   return (
-    <div
-      className="modal"
-      role="dialog"
-      aria-labelledby="add-skill-title"
-      aria-modal="true"
-      onKeyDown={handleKeyDown}
-    >
-      <form onSubmit={handleSubmit}>
-        <h3 id="add-skill-title">Add New Skill</h3>
-        {error && (
-          <div role="alert" className="error">
-            {error}
-          </div>
-        )}
-        <div>
-          <label htmlFor="skill-name">Skill Name</label>
-          <input
-            id="skill-name"
-            type="text"
-            name="name"
-            placeholder="Skill Name"
-            value={formData.name}
-            onChange={handleChange}
-            ref={nameInputRef}
-            required
-            aria-required="true"
-            aria-invalid={error ? 'true' : 'false'}
-          />
-        </div>
-        <div>
-          <label htmlFor="skill-description">Description</label>
-          <textarea
-            id="skill-description"
-            name="description"
-            placeholder="Description"
-            value={formData.description}
-            onChange={handleChange}
-            aria-describedby="description-hint"
-          />
-          <span id="description-hint" className="sr-only">
-            Optional description of the skill
-          </span>
-        </div>
-        <div>
-          <label htmlFor="skill-cost">Cost/Level (optional)</label>
-          <input
-            id="skill-cost"
-            type="number"
-            name="cost"
-            placeholder="Cost/Level (optional)"
-            value={formData.cost}
-            onChange={handleChange}
-            min="0"
-          />
-        </div>
-        <div className="form-actions">
-          <button type="submit" aria-label="Submit new skill">
-            Add
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            aria-label="Cancel adding new skill"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
+    <ThemeProvider theme={theme}>
+      <Paper
+        elevation={8}
+        sx={{
+          p: 4,
+          borderRadius: 3,
+          maxWidth: 500,
+          mx: 'auto',
+          bgcolor: 'background.paper',
+        }}
+      >
+        <Typography
+          variant="h5"
+          component="h2"
+          gutterBottom
+          align="center"
+          sx={{ mb: 3 }}
+        >
+          Add New Skill 🚀
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          onKeyDown={handleKeyDown}
+          sx={{ mt: 1 }}
+        >
+          {error && (
+            <Typography
+              color="error"
+              role="alert"
+              sx={{ mb: 2, textAlign: 'center' }}
+            >
+              {error}
+            </Typography>
+          )}
+          <Stack spacing={2.5}>
+            <TextField
+              label="Skill Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              inputRef={nameInputRef}
+              required
+              fullWidth
+              error={!!error}
+              helperText={error}
+            />
+            <TextField
+              label="Description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              multiline
+              rows={3}
+              fullWidth
+              variant="outlined"
+            />
+            <TextField
+              label="Cost / Level (optional)"
+              name="cost"
+              type="number"
+              value={formData.cost}
+              onChange={handleChange}
+              InputProps={{ inputProps: { min: 0 } }}
+              fullWidth
+            />
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent="flex-end"
+              sx={{ mt: 3 }}
+            >
+              <Button variant="outlined" color="primary" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                type="submit"
+                sx={{ color: 'white' }}
+              >
+                Add Skill
+              </Button>
+            </Stack>
+          </Stack>
+        </Box>
+      </Paper>
+    </ThemeProvider>
   );
 }
 

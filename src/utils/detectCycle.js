@@ -1,27 +1,30 @@
-export function detectCycle(graph) {
-    const visited = new Set();
-    const recStack = new Set();
+export function hasCycle({ nodes, edges }) {
+    const visitedNodes = new Set();
+    const stack = new Set();
 
     function dfs(nodeId) {
-        visited.add(nodeId);
-        recStack.add(nodeId);
+        visitedNodes.add(nodeId);
+        stack.add(nodeId);
 
-        const neighbors = graph.edges.filter((edge) => edge.source === nodeId).map((edge) => edge.target);
+        const children = edges
+            .filter((edge) => edge.source === nodeId)
+            .map((edge) => edge.target);
 
-        for (const neighbor of neighbors) {
-            if (!visited.has(neighbor)) {
-                if (dfs(neighbor)) return true;
-            } else if (recStack.has(neighbor)) {
+        for (const child of children) {
+            if (!visitedNodes.has(child)) {
+                if (dfs(child)) return true;
+            } else if (stack.has(child)) {
                 return true;
             }
         }
 
-        recStack.delete(nodeId);
+        stack.delete(nodeId);
         return false;
     }
 
-    for (const node of graph.nodes) {
-        if (!visited.has(node.id)) {
+
+    for (const node of nodes) {
+        if (!visitedNodes.has(node.id)) {
             if (dfs(node.id)) return true;
         }
     }
