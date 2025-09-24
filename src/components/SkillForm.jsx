@@ -134,6 +134,7 @@ function SkillForm({ onSubmit, onCancel }) {
           <Stack spacing={2.5}>
             <TextField
               label="Skill Name"
+              placeholder="Skill Name"
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -145,6 +146,7 @@ function SkillForm({ onSubmit, onCancel }) {
             />
             <TextField
               label="Description"
+              placeholder="Description"
               name="description"
               value={formData.description}
               onChange={handleChange}
@@ -154,6 +156,7 @@ function SkillForm({ onSubmit, onCancel }) {
               variant="outlined"
             />
             <TextField
+              placeholder="Cost / Level"
               label="Cost / Level (optional)"
               name="cost"
               type="number"

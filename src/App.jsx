@@ -308,7 +308,7 @@ function App() {
                 },
               }}
             >
-              Add Skill
+              Add New Skill
             </Button>
             <Button
               variant="contained"
@@ -360,31 +360,33 @@ function App() {
             <MiniMap aria-label="Mini map of skill tree" />
           </ReactFlow>
         </div>
-        <Dialog
-          open={showForm}
-          onClose={() => setShowForm(false)}
-          maxWidth="md"
-          sx={{
-            '& .MuiDialog-paper': {
-              backgroundColor: 'none',
-              borderRadius: '12px',
-              boxShadow: 'none',
-              padding: '20px',
-              width: 500,
-              background: 'none',
-            },
-          }}
-        >
-          <DialogContent>
-            <SkillForm
-              onSubmit={(data) => {
-                onAddNode(data);
-                setShowForm(false);
-              }}
-              onCancel={() => setShowForm(false)}
-            />
-          </DialogContent>
-        </Dialog>
+        {showForm && (
+          <Dialog
+            open={showForm}
+            onClose={() => setShowForm(false)}
+            maxWidth="md"
+            sx={{
+              '& .MuiDialog-paper': {
+                backgroundColor: 'none',
+                borderRadius: '12px',
+                boxShadow: 'none',
+                padding: '20px',
+                width: 500,
+                background: 'none',
+              },
+            }}
+          >
+            <DialogContent>
+              <SkillForm
+                onSubmit={(data) => {
+                  onAddNode(data);
+                  setShowForm(false);
+                }}
+                onCancel={() => setShowForm(false)}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
       </ReactFlowProvider>
     </div>
   );
