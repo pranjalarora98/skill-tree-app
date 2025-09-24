@@ -18,7 +18,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
+  TextField,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SkillForm from './components/SkillForm';
@@ -37,18 +37,27 @@ function App() {
     SKILL_CONSTANTS.SKILL_TREE_NODES,
     initialNodes
   );
-
   const [storedEdges, setStoredEdges] = useLocalStorage(
     SKILL_CONSTANTS.SKILL_TREE_EDGES,
     initialEdges
   );
-
   const [nodes, setNodes] = useNodesState(storedNodes);
   const [edges, setEdges] = useEdgesState(storedEdges);
-
   const [showForm, setShowForm] = useState(false);
-
+  const [searchTerm, setSearchTerm] = useState('');
   const addSkillButtonRef = useRef(null);
+
+  useEffect(() => {
+    const particleCount = 15; // Reduced particle count for optimization
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = `${Math.random() * 100}vw`;
+      particle.style.animationDuration = `${Math.random() * 3 + 3}s`;
+      particle.style.animationDelay = `${Math.random() * 2}s`;
+      document.querySelector('.app').appendChild(particle);
+    }
+  }, []);
 
   const handleNodesChange = useCallback(
     (changedNodes) => {
@@ -82,8 +91,8 @@ function App() {
           ...params,
           markerEnd: {
             type: 'arrowclosed',
-            width: 30,
-            height: 30,
+            width: 20,
+            height: 20,
             color: '#00bcd4',
           },
         },
@@ -206,70 +215,127 @@ function App() {
     setEdges(initialEdges);
     setStoredNodes(initialNodes);
     setStoredEdges(initialEdges);
+    setSearchTerm('');
     toast.success('Skill tree reset successfully!', { id: 'reset-success' });
   };
+
+  const highlightedNodes = nodes.map((node) => {
+    const matchesSearch = node.data.name
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    return {
+      ...node,
+      className: matchesSearch ? 'highlighted' : node.className,
+      data: {
+        ...node.data,
+        onKeyDown: (event) => onNodeKeyDown(event, node),
+      },
+    };
+  });
+
+  const highlightedEdges = edges.map((edge) => {
+    const isConnectedToHighlighted = highlightedNodes.some(
+      (node) =>
+        node.className === 'highlighted' &&
+        (edge.source === node.id || edge.target === node.id)
+    );
+    return {
+      ...edge,
+      style: {
+        ...edge.style,
+        stroke: isConnectedToHighlighted ? '#ffeb3b' : '#00bcd4',
+        strokeWidth: isConnectedToHighlighted ? 3 : 2,
+      },
+    };
+  });
 
   return (
     <div className="app" role="application" aria-label="Skill Tree Application">
       <ReactFlowProvider>
-        <div className="header">
+        <div className="header-container">
           <h1 className="welcome-text">Welcome to SkillBuilder</h1>
-        </div>
-        <div
-          className="controls"
-          role="toolbar"
-          aria-label="Skill tree controls"
-        >
-          <Button
-            ref={addSkillButtonRef}
-            variant="contained"
-            onClick={() => setShowForm(true)}
-            onKeyDown={handleAddSkillKeyDown}
-            startIcon={<AddIcon />}
-            sx={{
-              fontWeight: 'bold',
-              textTransform: 'none',
-              fontSize: '1rem',
-              borderRadius: '8px',
-              padding: '10px 24px',
-              color: 'white',
-              background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-              boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
-              transition:
-                'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-              '&:hover': {
-                background: 'linear-gradient(45deg, #1976D2 30%, #00B8D4 90%)',
-                boxShadow: '0 5px 8px 3px rgba(33, 203, 243, .4)',
-                transform: 'translateY(-2px)',
-              },
-            }}
-          >
-            Add Skill
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleReset}
-            sx={{
-              fontWeight: 'bold',
-              textTransform: 'none',
-              fontSize: '1rem',
-              borderRadius: '8px',
-              padding: '10px 24px',
-              marginLeft: '16px',
-              color: 'white',
-              background: 'linear-gradient(45deg, #e63946 30%, #f77f00 90%)',
-              boxShadow: '0 3px 5px 2px rgba(230, 57, 70, .3)',
-              transition:
-                'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-              '&:hover': {
-                background: 'linear-gradient(45deg, #d62828 30%, #e57300 90%)',
-                boxShadow: '0 5px 8px 3px rgba(230, 57, 70, .4)',
-                transform: 'translateY(-2px)',
-              },
-            }}
-          >
-            Reset
-          </Button>
+          <div className="search-controls">
+            <TextField
+              variant="outlined"
+              placeholder="Search by skill name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                style: {
+                  color: '#fff',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  width: '200px',
+                },
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#00bcd4',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#00e5ff',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#00e5ff',
+                  },
+                },
+              }}
+            />
+            <Button
+              ref={addSkillButtonRef}
+              variant="contained"
+              onClick={() => setShowForm(true)}
+              onKeyDown={handleAddSkillKeyDown}
+              startIcon={<AddIcon />}
+              sx={{
+                fontWeight: 'bold',
+                textTransform: 'none',
+                fontSize: '1rem',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                color: 'white',
+                background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                boxShadow: '0 2px 4px 1px rgba(33, 203, 243, .3)',
+                marginLeft: '10px',
+                transition:
+                  'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                '&:hover': {
+                  background:
+                    'linear-gradient(45deg, #1976D2 30%, #00B8D4 90%)',
+                  boxShadow: '0 4px 6px 2px rgba(33, 203, 243, .4)',
+                  transform: 'translateY(-2px)',
+                },
+              }}
+            >
+              Add Skill
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleReset}
+              sx={{
+                fontWeight: 'bold',
+                textTransform: 'none',
+                fontSize: '1rem',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                marginLeft: '10px',
+                color: 'white',
+                background: 'linear-gradient(45deg, #e63946 30%, #f77f00 90%)',
+                boxShadow: '0 2px 4px 1px rgba(230, 57, 70, .3)',
+                transition:
+                  'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                '&:hover': {
+                  background:
+                    'linear-gradient(45deg, #d62828 30%, #e57300 90%)',
+                  boxShadow: '0 4px 6px 2px rgba(230, 57, 70, .4)',
+                  transform: 'translateY(-2px)',
+                },
+              }}
+            >
+              Clear
+            </Button>
+          </div>
         </div>
         <div
           className="react-flow-container"
@@ -277,25 +343,8 @@ function App() {
           aria-label="Skill tree diagram"
         >
           <ReactFlow
-            nodes={nodes.map((node) => {
-              const isUnlockable =
-                !node.data.completed &&
-                edges
-                  .filter((e) => e.target === node.id)
-                  .every(
-                    (e) => nodes.find((n) => n.id === e.source)?.data.completed
-                  );
-
-              return {
-                ...node,
-                className: isUnlockable ? 'unlockable' : '',
-                data: {
-                  ...node.data,
-                  onKeyDown: (event) => onNodeKeyDown(event, node),
-                },
-              };
-            })}
-            edges={edges}
+            nodes={highlightedNodes}
+            edges={highlightedEdges}
             onNodesChange={handleNodesChange}
             onEdgesChange={handleEdgesChange}
             onConnect={onConnect}
@@ -321,21 +370,11 @@ function App() {
               borderRadius: '12px',
               boxShadow: 'none',
               padding: '20px',
+              width: 500,
               background: 'none',
-              width: 600,
             },
           }}
         >
-          {/* <DialogTitle
-            style={{
-              color: '#2196F3',
-              fontSize: '1.5em',
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}
-          >
-            Add a New Skill
-          </DialogTitle> */}
           <DialogContent>
             <SkillForm
               onSubmit={(data) => {
