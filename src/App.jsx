@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+} from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -13,24 +19,48 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import toast from 'react-hot-toast';
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
-} from '@mui/material';
+import { Button, Dialog, DialogContent, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SkillForm from './components/SkillForm';
 import { hasCycle } from './utils/detectCycle';
+import { applySearchHighlighting } from './utils/searchUtil';
 import SkillNode from './components/SkillNode';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import './App.css';
 import { SKILL_CONSTANTS } from '../Constant';
 
-const nodeTypes = { skill: SkillNode };
+const nodeTypes = { [SKILL_CONSTANTS.NODE_TYPE]: SkillNode };
 const initialNodes = [];
 const initialEdges = [];
+
+const PrimaryButtonStyles = {
+  fontWeight: 'bold',
+  textTransform: 'none',
+  fontSize: '1rem',
+  borderRadius: '8px',
+  padding: '8px 16px',
+  color: 'white',
+  background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+  boxShadow: '0 2px 4px 1px rgba(33, 203, 243, .3)',
+  marginLeft: '10px',
+  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  '&:hover': {
+    background: 'linear-gradient(45deg, #1976D2 30%, #00B8D4 90%)',
+    boxShadow: '0 4px 6px 2px rgba(33, 203, 243, .4)',
+    transform: 'translateY(-2px)',
+  },
+};
+
+const ResetButtonStyles = {
+  ...PrimaryButtonStyles,
+  background: 'linear-gradient(45deg, #e63946 30%, #f77f00 90%)',
+  boxShadow: '0 2px 4px 1px rgba(230, 57, 70, .3)',
+  '&:hover': {
+    background: 'linear-gradient(45deg, #d62828 30%, #e57300 90%)',
+    boxShadow: '0 4px 6px 2px rgba(230, 57, 70, .4)',
+    transform: 'translateY(-2px)',
+  },
+};
 
 function App() {
   const [storedNodes, setStoredNodes] = useLocalStorage(
@@ -47,27 +77,29 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const addSkillButtonRef = useRef(null);
 
+  const isSearchVisible = nodes && nodes.length > 0;
+
   useEffect(() => {
     const particleCount = 15;
+    const appElement = document.querySelector('.app');
+    if (!appElement) return;
+
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       particle.className = 'particle';
       particle.style.left = `${Math.random() * 100}vw`;
       particle.style.animationDuration = `${Math.random() * 3 + 3}s`;
       particle.style.animationDelay = `${Math.random() * 2}s`;
-      document.querySelector('.app').appendChild(particle);
+      appElement.appendChild(particle);
     }
   }, []);
 
   const handleNodesChange = useCallback(
     (changedNodes) => {
       setNodes((previousNodeList) => {
-        const updatedNodeList = applyNodeChanges(
-          changedNodes,
-          previousNodeList
-        );
-        setStoredNodes(updatedNodeList);
-        return updatedNodeList;
+        const updatedNodes = applyNodeChanges(changedNodes, previousNodeList);
+        setStoredNodes(updatedNodes);
+        return updatedNodes;
       });
     },
     [setNodes, setStoredNodes]
@@ -84,20 +116,18 @@ function App() {
     [setEdges, setStoredEdges]
   );
 
-  const onConnect = useCallback(
+  const handleConnect = useCallback(
     (params) => {
-      const candidateEdges = addEdge(
-        {
-          ...params,
-          markerEnd: {
-            type: 'arrowclosed',
-            width: 20,
-            height: 20,
-            color: '#00bcd4',
-          },
+      const newEdge = {
+        ...params,
+        markerEnd: {
+          type: 'arrowclosed',
+          width: 20,
+          height: 20,
+          color: '#00bcd4',
         },
-        edges
-      );
+      };
+      const candidateEdges = addEdge(newEdge, edges);
 
       const graph = { nodes, edges: candidateEdges };
 
@@ -114,77 +144,69 @@ function App() {
     [edges, nodes, setEdges, setStoredEdges]
   );
 
-  const onAddNode = useCallback(
-    (newNode) => {
+  const handleAddNode = useCallback(
+    (newNodeData) => {
       const id = Date.now().toString();
-      const node = {
+      const newNode = {
         id,
         type: SKILL_CONSTANTS.NODE_TYPE,
-        data: { ...newNode, completed: false },
+        data: { ...newNodeData, completed: false },
         position: { x: 100, y: 100 },
       };
-      setNodes((nds) => {
-        const newNodes = nds.concat(node);
-        return newNodes;
-      });
+      setNodes((currentNodes) => currentNodes.concat(newNode));
       setShowForm(false);
-      addSkillButtonRef.current.focus();
+
+      if (addSkillButtonRef.current) {
+        addSkillButtonRef.current.focus();
+      }
     },
     [setNodes]
   );
 
-  const onNodeClick = useCallback(
+  const handleNodeToggle = useCallback(
     (event, node) => {
       if (node.data.completed) {
-        setNodes((nds) => {
-          const updated = nds.map((n) =>
-            n.id === node.id
-              ? { ...n, data: { ...n.data, completed: false } }
-              : n
-          );
+        setNodes((currentNodes) => {
+          const toggleNode = (id, nodesToUpdate) => {
+            nodesToUpdate = nodesToUpdate.map((n) =>
+              n.id === id ? { ...n, data: { ...n.data, completed: false } } : n
+            );
 
-          const lockDependents = (id, nodesToUpdate) => {
             const dependents = edges
               .filter((e) => e.source === id)
               .map((e) => e.target);
 
             for (const depId of dependents) {
-              nodesToUpdate = nodesToUpdate.map((n) =>
-                n.id === depId
-                  ? { ...n, data: { ...n.data, completed: false } }
-                  : n
-              );
-              nodesToUpdate = lockDependents(depId, nodesToUpdate);
+              // Recursively lock dependents
+              nodesToUpdate = toggleNode(depId, nodesToUpdate);
             }
-
             return nodesToUpdate;
           };
 
-          return lockDependents(node.id, updated);
+          return toggleNode(node.id, currentNodes);
         });
-
         toast.success('Skill locked (and dependents).', { id: 'node-status' });
         return;
       }
 
-      const prereqIds = edges
+      const prerequisiteIds = edges
         .filter((e) => e.target === node.id)
         .map((e) => e.source);
 
-      const allPrereqsComplete = prereqIds.every((id) => {
+      const allPrerequisitesComplete = prerequisiteIds.every((id) => {
         const prereqNode = nodes.find((n) => n.id === id);
         return prereqNode?.data.completed;
       });
 
-      if (!allPrereqsComplete) {
+      if (!allPrerequisitesComplete) {
         toast.error('Cannot unlock: Complete prerequisites first!', {
           id: 'node-error',
         });
         return;
       }
 
-      setNodes((nds) =>
-        nds.map((n) =>
+      setNodes((currentNodes) =>
+        currentNodes.map((n) =>
           n.id === node.id ? { ...n, data: { ...n.data, completed: true } } : n
         )
       );
@@ -193,14 +215,14 @@ function App() {
     [edges, nodes, setNodes]
   );
 
-  const onNodeKeyDown = useCallback(
+  const handleNodeKeyDown = useCallback(
     (event, node) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        onNodeClick(event, node);
+        handleNodeToggle(event, node);
       }
     },
-    [onNodeClick]
+    [handleNodeToggle]
   );
 
   const handleAddSkillKeyDown = (event) => {
@@ -219,89 +241,17 @@ function App() {
     toast.success('Skill tree reset successfully!', { id: 'reset-success' });
   };
 
-  const findAllPrerequisites = useCallback(
-    (nodeId, pathSet = new Set()) => {
-      const prereqs = edges
-        .filter((e) => e.target === nodeId)
-        .map((e) => e.source);
+  const { highlightedNodes, highlightedEdges } = useMemo(() => {
+    return applySearchHighlighting(nodes, edges, searchTerm);
+  }, [nodes, edges, searchTerm]);
 
-      for (const prereqId of prereqs) {
-        if (!pathSet.has(prereqId)) {
-          pathSet.add(prereqId);
-          findAllPrerequisites(prereqId, pathSet);
-        }
-      }
-      return pathSet;
+  const nodesWithAccessibility = highlightedNodes.map((node) => ({
+    ...node,
+    data: {
+      ...node.data,
+      onKeyDown: (event) => handleNodeKeyDown(event, node),
     },
-    [edges]
-  );
-
-  const highlightedNodes = nodes.map((node) => {
-    const searchTermLower = searchTerm.toLowerCase();
-    const nodeNameLower = node.data.name?.toLowerCase();
-
-    const isDirectMatch =
-      nodeNameLower?.includes(searchTermLower) && searchTermLower.length > 0;
-
-    let isPathHighlight = false;
-    if (!isDirectMatch && searchTermLower.length > 0) {
-      const directMatchNodes = nodes.filter((n) =>
-        n.data.name?.toLowerCase().includes(searchTermLower)
-      );
-
-      for (const matchNode of directMatchNodes) {
-        const pathSet = findAllPrerequisites(matchNode.id);
-        if (pathSet.has(node.id)) {
-          isPathHighlight = true;
-          break;
-        }
-      }
-    }
-
-    const baseClass =
-      node.className
-        ?.replace('direct-match', '')
-        .replace('path-highlight', '')
-        .trim() || '';
-
-    let customClass = baseClass;
-    if (isDirectMatch) {
-      customClass += ' direct-match';
-    } else if (isPathHighlight) {
-      customClass += ' path-highlight';
-    }
-
-    return {
-      ...node,
-      className: customClass.trim(),
-      data: {
-        ...node.data,
-        onKeyDown: (event) => onNodeKeyDown(event, node),
-      },
-    };
-  });
-
-  const highlightedEdges = edges.map((edge) => {
-    const isNodeHighlighted = (id) => {
-      const node = highlightedNodes.find((n) => n.id === id);
-      return (
-        node?.className?.includes('direct-match') ||
-        node?.className?.includes('path-highlight')
-      );
-    };
-
-    const isPathEdge =
-      isNodeHighlighted(edge.source) && isNodeHighlighted(edge.target);
-
-    return {
-      ...edge,
-      style: {
-        ...edge.style,
-        stroke: isPathEdge ? '#ffeb3b' : '#00bcd4',
-        strokeWidth: isPathEdge ? 3 : 2,
-      },
-    };
-  });
+  }));
 
   return (
     <div className="app" role="application" aria-label="Skill Tree Application">
@@ -309,83 +259,43 @@ function App() {
         <div className="header-container">
           <h1 className="welcome-text">Welcome to SkillBuilder</h1>
           <div className="search-controls">
-            <TextField
-              variant="outlined"
-              placeholder="Search by skill name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                style: {
-                  color: '#fff',
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  borderRadius: '8px',
-                  width: '200px',
-                },
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#00bcd4',
+            {isSearchVisible && (
+              <TextField
+                variant="outlined"
+                placeholder="Search by skill name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  style: {
+                    color: '#fff',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    borderRadius: '8px',
+                    width: '200px',
                   },
-                  '&:hover fieldset': {
-                    borderColor: '#00e5ff',
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': { borderColor: '#00bcd4' },
+                    '&:hover fieldset': { borderColor: '#00e5ff' },
+                    '&.Mui-focused fieldset': { borderColor: '#00e5ff' },
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#00e5ff',
-                  },
-                },
-              }}
-            />
+                }}
+              />
+            )}
             <Button
               ref={addSkillButtonRef}
               variant="contained"
               onClick={() => setShowForm(true)}
               onKeyDown={handleAddSkillKeyDown}
               startIcon={<AddIcon />}
-              sx={{
-                fontWeight: 'bold',
-                textTransform: 'none',
-                fontSize: '1rem',
-                borderRadius: '8px',
-                padding: '8px 16px',
-                color: 'white',
-                background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                boxShadow: '0 2px 4px 1px rgba(33, 203, 243, .3)',
-                marginLeft: '10px',
-                transition:
-                  'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                '&:hover': {
-                  background:
-                    'linear-gradient(45deg, #1976D2 30%, #00B8D4 90%)',
-                  boxShadow: '0 4px 6px 2px rgba(33, 203, 243, .4)',
-                  transform: 'translateY(-2px)',
-                },
-              }}
+              sx={PrimaryButtonStyles}
             >
               Add New Skill
             </Button>
             <Button
               variant="contained"
               onClick={handleReset}
-              sx={{
-                fontWeight: 'bold',
-                textTransform: 'none',
-                fontSize: '1rem',
-                borderRadius: '8px',
-                padding: '8px 16px',
-                marginLeft: '10px',
-                color: 'white',
-                background: 'linear-gradient(45deg, #e63946 30%, #f77f00 90%)',
-                boxShadow: '0 2px 4px 1px rgba(230, 57, 70, .3)',
-                transition:
-                  'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                '&:hover': {
-                  background:
-                    'linear-gradient(45deg, #d62828 30%, #e57300 90%)',
-                  boxShadow: '0 4px 6px 2px rgba(230, 57, 70, .4)',
-                  transform: 'translateY(-2px)',
-                },
-              }}
+              sx={ResetButtonStyles}
             >
               Clear
             </Button>
@@ -397,12 +307,12 @@ function App() {
           aria-label="Skill tree diagram"
         >
           <ReactFlow
-            nodes={highlightedNodes}
+            nodes={nodesWithAccessibility}
             edges={highlightedEdges}
             onNodesChange={handleNodesChange}
             onEdgesChange={handleEdgesChange}
-            onConnect={onConnect}
-            onNodeClick={onNodeClick}
+            onConnect={handleConnect}
+            onNodeClick={handleNodeToggle}
             nodeTypes={nodeTypes}
             fitView
           >
@@ -432,10 +342,7 @@ function App() {
           >
             <DialogContent>
               <SkillForm
-                onSubmit={(data) => {
-                  onAddNode(data);
-                  setShowForm(false);
-                }}
+                onSubmit={handleAddNode}
                 onCancel={() => setShowForm(false)}
               />
             </DialogContent>
