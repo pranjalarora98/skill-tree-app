@@ -24,7 +24,7 @@ function SkillNode({ data, isConnectable }) {
 
       <div className="skill-node-header">
         <span className="skill-title">{name}</span>
-        {data.completed ? (
+        {data.completed && (
           <StarIcon
             sx={{
               color: 'green',
@@ -32,8 +32,6 @@ function SkillNode({ data, isConnectable }) {
               filter: 'drop-shadow(0 0 8px hsl(green / 0.6))',
             }}
           />
-        ) : (
-          <LockIcon style={{ color: 'grey', fontSize: 20 }} />
         )}
       </div>
 

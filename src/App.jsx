@@ -48,7 +48,7 @@ function App() {
   const addSkillButtonRef = useRef(null);
 
   useEffect(() => {
-    const particleCount = 15; // Reduced particle count for optimization
+    const particleCount = 15;
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       particle.className = 'particle';
@@ -219,13 +219,61 @@ function App() {
     toast.success('Skill tree reset successfully!', { id: 'reset-success' });
   };
 
+  const findAllPrerequisites = useCallback(
+    (nodeId, pathSet = new Set()) => {
+      const prereqs = edges
+        .filter((e) => e.target === nodeId)
+        .map((e) => e.source);
+
+      for (const prereqId of prereqs) {
+        if (!pathSet.has(prereqId)) {
+          pathSet.add(prereqId);
+          findAllPrerequisites(prereqId, pathSet);
+        }
+      }
+      return pathSet;
+    },
+    [edges]
+  );
+
   const highlightedNodes = nodes.map((node) => {
-    const matchesSearch = node.data.name
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const searchTermLower = searchTerm.toLowerCase();
+    const nodeNameLower = node.data.name?.toLowerCase();
+
+    const isDirectMatch =
+      nodeNameLower?.includes(searchTermLower) && searchTermLower.length > 0;
+
+    let isPathHighlight = false;
+    if (!isDirectMatch && searchTermLower.length > 0) {
+      const directMatchNodes = nodes.filter((n) =>
+        n.data.name?.toLowerCase().includes(searchTermLower)
+      );
+
+      for (const matchNode of directMatchNodes) {
+        const pathSet = findAllPrerequisites(matchNode.id);
+        if (pathSet.has(node.id)) {
+          isPathHighlight = true;
+          break;
+        }
+      }
+    }
+
+    const baseClass =
+      node.className
+        ?.replace('direct-match', '')
+        .replace('path-highlight', '')
+        .trim() || '';
+
+    let customClass = baseClass;
+    if (isDirectMatch) {
+      customClass += ' direct-match';
+    } else if (isPathHighlight) {
+      customClass += ' path-highlight';
+    }
+
     return {
       ...node,
-      className: matchesSearch ? 'highlighted' : node.className,
+      className: customClass.trim(),
       data: {
         ...node.data,
         onKeyDown: (event) => onNodeKeyDown(event, node),
@@ -234,17 +282,23 @@ function App() {
   });
 
   const highlightedEdges = edges.map((edge) => {
-    const isConnectedToHighlighted = highlightedNodes.some(
-      (node) =>
-        node.className === 'highlighted' &&
-        (edge.source === node.id || edge.target === node.id)
-    );
+    const isNodeHighlighted = (id) => {
+      const node = highlightedNodes.find((n) => n.id === id);
+      return (
+        node?.className?.includes('direct-match') ||
+        node?.className?.includes('path-highlight')
+      );
+    };
+
+    const isPathEdge =
+      isNodeHighlighted(edge.source) && isNodeHighlighted(edge.target);
+
     return {
       ...edge,
       style: {
         ...edge.style,
-        stroke: isConnectedToHighlighted ? '#ffeb3b' : '#00bcd4',
-        strokeWidth: isConnectedToHighlighted ? 3 : 2,
+        stroke: isPathEdge ? '#ffeb3b' : '#00bcd4',
+        strokeWidth: isPathEdge ? 3 : 2,
       },
     };
   });
