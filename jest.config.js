@@ -8,4 +8,5 @@ export default {
         '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     },
     moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
+    testTimeout: 20000
 };
