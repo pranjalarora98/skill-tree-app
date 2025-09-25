@@ -20,7 +20,6 @@ test('renders name, description and cost with correct classes', () => {
 
   expect(screen.getByText(/Name1/i)).toBeInTheDocument();
   expect(screen.getByText(/TestDescription/i)).toBeInTheDocument();
-  //   expect(screen.getByText(/Cost: 3/i)).toBeInTheDocument();
 
   expect(container.firstChild).toHaveClass('locked');
 
