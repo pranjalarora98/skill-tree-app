@@ -30,39 +30,16 @@ const Header = ({
           onClick={() => setShowForm(true)}
           onKeyDown={handleAddSkillKeyDown}
           startIcon={<AddIcon />}
-          sx={{
-            fontWeight: 'bold',
-            textTransform: 'none',
-            fontSize: '1rem',
-            borderRadius: '8px',
-            padding: '8px 16px',
-            color: 'white',
-            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-            boxShadow: '0 2px 4px 1px rgba(33, 203, 243, .3)',
-            marginLeft: '10px',
-            transition:
-              'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-            '&:hover': {
-              background: 'linear-gradient(45deg, #1976D2 30%, #00B8D4 90%)',
-              boxShadow: '0 4px 6px 2px rgba(33, 203, 243, .4)',
-              transform: 'translateY(-2px)',
-            },
-          }}
+          sx={{ ml: 1 }}
         >
           Add New Skill
         </Button>
+
         <Button
           variant="contained"
+          color="error"
           onClick={handleReset}
-          sx={{
-            background: 'linear-gradient(45deg, #e63946 30%, #f77f00 90%)',
-            boxShadow: '0 2px 4px 1px rgba(230, 57, 70, .3)',
-            '&:hover': {
-              background: 'linear-gradient(45deg, #d62828 30%, #e57300 90%)',
-              boxShadow: '0 4px 6px 2px rgba(230, 57, 70, .4)',
-              transform: 'translateY(-2px)',
-            },
-          }}
+          sx={{ ml: 1 }}
         >
           Clear
         </Button>

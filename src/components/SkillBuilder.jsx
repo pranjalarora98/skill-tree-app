@@ -90,8 +90,8 @@ function SkillBuilder() {
         ...params,
         markerEnd: {
           type: 'arrowclosed',
-          width: 20,
-          height: 20,
+          width: 15,
+          height: 15,
           color: '#00bcd4',
         },
       };
