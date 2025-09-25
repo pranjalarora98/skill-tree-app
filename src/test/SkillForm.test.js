@@ -11,10 +11,7 @@ test('submits trimmed values and resets form', async () => {
 
   render(<SkillForm onSubmit={handleSubmit} onCancel={handleCancel} />);
 
-  await user.type(
-    screen.getByPlaceholderText(/Skill Name/i),
-    '  Test1Skill  '
-  );
+  await user.type(screen.getByPlaceholderText(/Skill Name/i), '  Test1Skill  ');
   await user.type(
     screen.getByPlaceholderText(/Description/i),
     '  Slice things  '
