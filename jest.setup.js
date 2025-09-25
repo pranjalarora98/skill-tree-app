@@ -1,12 +1,9 @@
-// jest.setup.js
+
 import '@testing-library/jest-dom';
 
-// --------------------
-// Mock react-hot-toast
-// --------------------
+
 import { jest } from '@jest/globals';
 
-// Mock react-hot-toast
 jest.mock('react-hot-toast', () => ({
   __esModule: true,
   default: {
@@ -24,9 +21,6 @@ class ResizeObserver {
 globalThis.ResizeObserver = ResizeObserver;
 
 
-// --------------------
-// Mock @xyflow/react
-// --------------------
 jest.unstable_mockModule('@xyflow/react', async () => {
   const React = await import('react');
   return {
@@ -45,9 +39,7 @@ jest.unstable_mockModule('@xyflow/react', async () => {
 });
 
 
-// --------------------
-// Mock window.matchMedia (for MUI)
-// --------------------
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({

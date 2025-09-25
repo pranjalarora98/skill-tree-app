@@ -329,8 +329,3 @@ before submitting.
 
 ---
 
-## 📜 License
-
-MIT © 2025 [Pranjal Arora](https://github.com/pranjalarora98)
-
----

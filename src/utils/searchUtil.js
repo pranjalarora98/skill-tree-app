@@ -1,4 +1,3 @@
-// utils/searchUtils.js
 import { SKILL_CONSTANTS } from '../../Constant';
 
 export const findAllPrerequisites = (nodeId, edges, pathSet = new Set()) => {
