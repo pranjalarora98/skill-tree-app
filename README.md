@@ -30,11 +30,23 @@ The app is fully keyboard accessible, tested with Jest, and follows code quality
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (>= 18.x recommended)
+- React-flow Library
+- Node.js (>= 20.x recommended)
 - npm or yarn
 
 ### Installation
 ```bash
-git clone https://github.com/your-username/skill-tree-app.git
+git clone https://pranjalarora98/skill-tree-app.git
 cd skill-tree-app
 npm install
+
+### Testing
+
+npm run test
+npm run test:coverage
+
+# Generates a coverage report in the coverage/ folder
+
+### Formatting
+npm run format
+npm run lint

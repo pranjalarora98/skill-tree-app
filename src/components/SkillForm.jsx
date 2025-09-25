@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   TextField,
   Button,
@@ -14,26 +14,40 @@ function SkillForm({ onSubmit, onCancel }) {
     description: '',
     cost: '',
   });
-  const [error, setError] = useState('');
+
+  const [errors, setErrors] = useState({ name: '', description: '' });
+
   const nameInputRef = useRef(null);
+  const descriptionRef = useRef(null);
 
   useEffect(() => {
     nameInputRef.current?.focus();
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (name === 'name' && value.trim()) {
-      setError('');
-    }
-  };
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const newErrors = { name: '', description: '' };
+    let hasError = false;
+
     if (!formData.name.trim()) {
-      setError('Skill name is required');
-      nameInputRef.current.focus();
+      newErrors.name = 'Skill name is required';
+      nameInputRef.current?.focus();
+      hasError = true;
+    } else if (!formData.description.trim()) {
+      newErrors.description = 'Skill description is required';
+      descriptionRef.current?.focus();
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
       return;
     }
 
@@ -44,7 +58,7 @@ function SkillForm({ onSubmit, onCancel }) {
     });
 
     setFormData({ name: '', description: '', cost: '' });
-    setError('');
+    setErrors({ name: '', description: '' });
   };
 
   const handleKeyDown = (e) => {
@@ -79,15 +93,19 @@ function SkillForm({ onSubmit, onCancel }) {
         onKeyDown={handleKeyDown}
         sx={{ mt: 1 }}
       >
-        {error && (
-          <Typography
-            color="error"
-            role="alert"
-            sx={{ mb: 2, textAlign: 'center' }}
-          >
-            {error}
-          </Typography>
-        )}
+        {Object.values(errors)
+          .filter(Boolean)
+          .map((msg, idx) => (
+            <Typography
+              key={idx}
+              color="error"
+              role="alert"
+              sx={{ mb: 1, textAlign: 'center' }}
+            >
+              {msg}
+            </Typography>
+          ))}
+
         <Stack spacing={2.5}>
           <TextField
             label="Skill Name"
@@ -98,19 +116,22 @@ function SkillForm({ onSubmit, onCancel }) {
             inputRef={nameInputRef}
             required
             fullWidth
-            error={!!error}
-            helperText={error}
+            error={!!errors.name}
+            helperText={errors.name}
           />
           <TextField
             label="Description"
             placeholder="Description"
             name="description"
             value={formData.description}
+            inputRef={descriptionRef}
             onChange={handleChange}
             multiline
             rows={3}
             fullWidth
             variant="outlined"
+            error={!!errors.description}
+            helperText={errors.description}
           />
           <TextField
             placeholder="Cost / Level"

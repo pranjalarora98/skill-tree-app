@@ -7,7 +7,7 @@ import App from '../App';
 import toast from 'react-hot-toast';
 
 jest.mock('@xyflow/react', () => {
-    const React = require('react');
+    const React = jest.requireActual('react');
     const Position = {
         Top: 'top',
         Bottom: 'bottom',
@@ -82,8 +82,7 @@ jest.mock('@xyflow/react', () => {
 });
 
 jest.mock('react-hot-toast', () => {
-    const { fn } = require('jest-mock');
-    const mock = { success: fn(), error: fn() };
+    const mock = { success: jest.fn(), error: jest.fn() };
     return { __esModule: true, default: mock, ...mock };
 });
 
@@ -107,6 +106,7 @@ describe('App.jsx extra coverage', () => {
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         await user.type(screen.getByLabelText(/Skill Name/i), 'NodeA');
+        await user.type(screen.getByLabelText(/Description/i), 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         const search = await screen.findByPlaceholderText(/Search by skill name/i);
@@ -123,12 +123,16 @@ describe('App.jsx extra coverage', () => {
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         await user.type(screen.getByLabelText(/Skill Name/i), 'Alpha');
+        await user.type(screen.getByLabelText(/Description/i), 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         const nameInput = await screen.findByLabelText(/Skill Name/i);
+        const descInput = await screen.findByLabelText(/Description/i);
         await user.clear(nameInput);
+        await user.clear(descInput);
         await user.type(nameInput, 'Beta');
+        await user.type(descInput, 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         expect(screen.getByText('Alpha')).toBeInTheDocument();
@@ -149,13 +153,17 @@ describe('App.jsx extra coverage', () => {
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         await user.type(screen.getByLabelText(/Skill Name/i), 'A');
+        await user.type(screen.getByLabelText(/Description/i), 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         const input = await screen.findByLabelText(/Skill Name/i);
+        const descInput = await screen.findByLabelText(/Description/i);
         await user.clear(input);
+        await user.clear(descInput);
         await user.type(input, 'B');
+        await user.type(descInput, 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         const aId = window.__rf_nodes.find((n) => n.data.name === 'A').id;
@@ -183,12 +191,16 @@ describe('App.jsx extra coverage', () => {
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         await user.type(screen.getByLabelText(/Skill Name/i), 'JS');
+        await user.type(screen.getByLabelText(/Description/i), 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         const input = await screen.findByLabelText(/Skill Name/i);
+        const descInput = await screen.findByLabelText(/Description/i);
         await user.clear(input);
+        await user.clear(descInput);
         await user.type(input, 'React');
+        await user.type(descInput, 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         const jsId = window.__rf_nodes.find((n) => n.data.name === 'JS').id;
@@ -227,7 +239,9 @@ describe('App.jsx extra coverage', () => {
         await user.keyboard(' ');
         const dialog = await screen.findByRole('dialog');
         const nameInput = within(dialog).getByLabelText(/Skill Name/i);
+        const descInput = within(dialog).getByLabelText(/Description/i);
         await user.type(nameInput, 'KbdNode');
+        await user.type(descInput, 'Description');
         await user.click(
             within(dialog).getByRole('button', { name: /add skill/i })
         );
@@ -269,13 +283,17 @@ describe('App.jsx extra coverage', () => {
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         await user.type(screen.getByLabelText(/Skill Name/i), 'JS');
+        await user.type(screen.getByLabelText(/Description/i), 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         const input = await screen.findByLabelText(/Skill Name/i);
+        const descInput = await screen.findByLabelText(/Description/i);
         await user.clear(input);
+        await user.clear(descInput);
         await user.type(input, 'React');
+        await user.type(descInput, 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         const jsId = window.__rf_nodes.find((n) => n.data.name === 'JS').id;
@@ -309,6 +327,7 @@ describe('App.jsx extra coverage', () => {
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         await user.type(screen.getByLabelText(/Skill Name/i), 'NodeToChange');
+        await user.type(screen.getByLabelText(/Description/i), 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         const node = window.__rf_nodes.find((n) => n.data.name === 'NodeToChange');
@@ -343,6 +362,7 @@ describe('App.jsx extra coverage', () => {
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         await user.type(screen.getByLabelText(/Skill Name/i), 'Storable Node');
+        await user.type(screen.getByLabelText(/Description/i), 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         const nodeEl = await screen.findByText('Storable Node');
@@ -379,7 +399,11 @@ describe('App.jsx extra coverage', () => {
         await user.click(addBtn);
         const dialog = await screen.findByRole('dialog');
         const nameInput = within(dialog).getByLabelText(/Skill Name/i);
+        const descInput = within(dialog).getByLabelText(/Description/i);
+
         await user.type(nameInput, 'FocusNode');
+        await user.type(descInput, 'Description');
+
         await user.click(within(dialog).getByRole('button', { name: /add skill/i }));
 
         expect(document.activeElement).toBe(addBtn);
@@ -392,19 +416,32 @@ describe('App.jsx extra coverage', () => {
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         await user.type(screen.getByLabelText(/Skill Name/i), 'A');
+        await user.type(screen.getByLabelText(/Description/i), 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
         let input = await screen.findByLabelText(/Skill Name/i);
+        let descInput = await screen.findByLabelText(/Description/i);
+
         await user.clear(input);
+        await user.clear(descInput);
+
         await user.type(input, 'B');
+        await user.type(descInput, 'Test description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
+
         input = await screen.findByLabelText(/Skill Name/i);
+        descInput = await screen.findByLabelText(/Description/i);
+
         await user.clear(input);
+        await user.clear(descInput);
+
         await user.type(input, 'C');
+        await user.type(descInput, 'Description test');
+
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
         const aId = window.__rf_nodes.find((n) => n.data.name === 'A').id;
@@ -456,13 +493,20 @@ test('successful connect stores edges in localStorage', async () => {
 
     await user.click(screen.getByRole('button', { name: /add new skill/i }));
     await user.type(screen.getByLabelText(/Skill Name/i), 'ConnA');
+    await user.type(screen.getByLabelText(/Description/i), 'Description');
     await user.click(screen.getByRole('button', { name: /add skill/i }));
 
 
     await user.click(screen.getByRole('button', { name: /add new skill/i }));
     const input = await screen.findByLabelText(/Skill Name/i);
+    const descInput = await screen.findByLabelText(/Description/i);
+
     await user.clear(input);
+    await user.clear(descInput);
+
     await user.type(input, 'ConnB');
+    await user.type(descInput, 'Test description');
+
     await user.click(screen.getByRole('button', { name: /add skill/i }));
 
     const aId = window.__rf_nodes.find((n) => n.data.name === 'ConnA').id;
@@ -489,6 +533,7 @@ test('non-Enter/Space key on node does not toggle and does not toast', async () 
 
     await user.click(screen.getByRole('button', { name: /add new skill/i }));
     await user.type(screen.getByLabelText(/Skill Name/i), 'NoToggle');
+    await user.type(screen.getByLabelText(/Description/i), 'Description');
     await user.click(screen.getByRole('button', { name: /add skill/i }));
 
     const nodeEl = await screen.findByText('NoToggle');

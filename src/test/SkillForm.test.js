@@ -52,21 +52,17 @@ test('shows validation error and focuses name input when submitting empty name',
 
   render(<SkillForm onSubmit={handleSubmit} onCancel={handleCancel} />);
 
-  // Ensure name is empty and submit - be explicit about the Add Skill button
   const addBtn = screen.getByRole('button', { name: /add skill/i });
 
-  // disable native HTML5 validation so the component's handler runs in test env
   const form = addBtn.closest('form');
   if (form) form.noValidate = true;
 
   await user.click(addBtn);
 
-  // Expect validation error shown and onSubmit not called
   const alert = await screen.findByRole('alert');
   expect(alert).toHaveTextContent(/Skill name is required/i);
   expect(handleSubmit).not.toHaveBeenCalled();
 
-  // Name input should be focused
   const nameInput = screen.getByLabelText(/Skill Name/i);
   expect(document.activeElement).toBe(nameInput);
 });
