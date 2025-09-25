@@ -86,6 +86,11 @@ jest.mock('react-hot-toast', () => {
     return { __esModule: true, default: mock, ...mock };
 });
 
+jest.mock('../hooks/useDebounce', () => ({
+    __esModule: true,
+    default: (value) => value,
+}));
+
 import * as searchUtil from '../utils/searchUtil';
 import { SKILL_CONSTANTS } from '../../Constant';
 
