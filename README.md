@@ -132,7 +132,7 @@ npm run test:coverage
   - **LocalStorage persistence** for nodes/edges on every change
   - **Search highlighting** (nodes + edges, with debounced input)
 
-### Common Test Gotchas (and fixes)
+### Common Test Cases
 
 - **MUI TouchRipple “act(...)” warnings (especially in coverage):**  
   Wrap user events with `act(...)`:
