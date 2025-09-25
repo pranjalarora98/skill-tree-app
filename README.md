@@ -45,7 +45,7 @@ Accessibility-first, thoroughly tested with Jest + React Testing Library, and co
 ### Prerequisites
 
 - **Node.js**: v20.x+ recommended
-- **npm** (or yarn)
+- **npm**
 - Core libraries used:
   - `react`, `react-dom`
   - `@xyflow/react` (React Flow)
