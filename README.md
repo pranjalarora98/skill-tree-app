@@ -32,21 +32,25 @@ The app is fully keyboard accessible, tested with Jest, and follows code quality
 ### Prerequisites
 - React-flow Library
 - Node.js (>= 20.x recommended)
-- npm or yarn
+- npm
 
 ### Installation
 ```bash
 git clone https://pranjalarora98/skill-tree-app.git
 cd skill-tree-app
 npm install
+```
 
 ### Testing
-
+```
 npm run test
 npm run test:coverage
+```
 
 # Generates a coverage report in the coverage/ folder
 
 ### Formatting
+```
 npm run format
 npm run lint
+```

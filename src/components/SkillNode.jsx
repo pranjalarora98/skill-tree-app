@@ -1,4 +1,3 @@
-// SkillNode.js
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 import StarIcon from '@mui/icons-material/Star';
@@ -15,7 +14,6 @@ function SkillNode({ data, isConnectable }) {
       tabIndex={0}
       onKeyDown={data.onKeyDown}
     >
-      {/* Top Handle for incoming connections */}
       <Handle
         type="target"
         position={Position.Top}
@@ -39,7 +37,6 @@ function SkillNode({ data, isConnectable }) {
 
       {data.extraInfo && <div className="skill-extra">{data.extraInfo}</div>}
 
-      {/* Bottom Handle for outgoing connections */}
       <Handle
         type="source"
         position={Position.Bottom}
