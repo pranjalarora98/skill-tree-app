@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { ReactFlowProvider } from '@xyflow/react';
 import SkillNode from '../components/SkillNode';
-import { jest, test, expect } from '@jest/globals';
+import { test, expect } from '@jest/globals';
 
 test('renders name, description and cost with correct classes', () => {
     const data = {

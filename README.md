@@ -306,13 +306,6 @@ If you test this behavior, either **advance Jest timers** or **mock debounce** t
 
 ---
 
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feat/<name>`
-3. Commit: `git commit -m "feat: add <thing>"`
-4. Push: `git push origin feat/<name>`
-5. Open a PR
 
 Please run:
 
@@ -341,13 +334,3 @@ before submitting.
 MIT © 2025 [Pranjal Arora](https://github.com/pranjalarora98)
 
 ---
-
-## 📸 Screenshots (optional)
-
-Add images or GIFs for the README:
-
-```md
-![Home](docs/screens/home.png)
-![Add Skill](docs/screens/add-skill.png)
-![Connections](docs/screens/connections.png)
-```

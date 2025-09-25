@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { jest, test, expect } from '@jest/globals';
+import { test, expect } from '@jest/globals';
 
 function TestComp() {
     const [val, setVal] = useLocalStorage('test-key', 'init');

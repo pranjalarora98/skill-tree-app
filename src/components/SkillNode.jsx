@@ -6,7 +6,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import '../App.css';
 
 function SkillNode({ data, isConnectable }) {
-  const { name, description, cost, completed, onKeyDown } = data;
+  const { name, description, cost, completed } = data;
 
   return (
     <div
@@ -22,7 +22,7 @@ function SkillNode({ data, isConnectable }) {
 
       <div className="skill-node-header">
         <span className="skill-title">{name}</span>
-        {data.completed && (
+        {completed && (
           <StarIcon
             sx={{
               color: 'green',
@@ -35,7 +35,7 @@ function SkillNode({ data, isConnectable }) {
 
       {description && <div className="skill-description">{description}</div>}
 
-      {data.extraInfo && <div className="skill-extra">{data.extraInfo}</div>}
+      {cost && <div className="skill-extra">{cost}</div>}
 
       <Handle
         type="source"
