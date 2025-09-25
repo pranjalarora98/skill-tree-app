@@ -1,9 +1,15 @@
 import { SKILL_CONSTANTS } from '../../Constant';
 
+// Will Recursively find all prerequisite nodes any node.
 export const findAllPrerequisites = (nodeId, edges, pathSet = new Set()) => {
+
+  // Get all nodes that are direct prerequisites.
   const prereqs = edges.filter((e) => e.target === nodeId).map((e) => e.source);
 
   for (const prereqId of prereqs) {
+
+    // If not  visited before, add to path and recurse again.
+
     if (!pathSet.has(prereqId)) {
       pathSet.add(prereqId);
       findAllPrerequisites(prereqId, edges, pathSet);
@@ -14,6 +20,8 @@ export const findAllPrerequisites = (nodeId, edges, pathSet = new Set()) => {
 
 export const applySearchHighlighting = (nodes, edges, searchTerm) => {
   const searchTermLower = searchTerm.toLowerCase().trim();
+
+  //If search term is not there, clean the highlighted styles.
 
   if (!searchTermLower) {
     const cleanedNodes = nodes.map((node) => {
@@ -37,6 +45,7 @@ export const applySearchHighlighting = (nodes, edges, searchTerm) => {
     return { highlightedNodes: cleanedNodes, highlightedEdges: defaultEdges };
   }
 
+  //Filter out highlighted nodes
   const nodesWithHighlightInfo = nodes.map((node) => {
     const nodeNameLower = node.data.name?.toLowerCase();
     const isDirectMatch = nodeNameLower?.includes(searchTermLower);
@@ -65,6 +74,7 @@ export const applySearchHighlighting = (nodes, edges, searchTerm) => {
     }
   }
 
+  //Add highlighted classes to nodes that are being filtered
   const highlightedNodes = nodesWithHighlightInfo.map((node) => {
     const baseClass =
       node.className
@@ -86,6 +96,7 @@ export const applySearchHighlighting = (nodes, edges, searchTerm) => {
     };
   });
 
+  // Style edges based on whether they connect highlighted nodes
   const highlightedEdges = edges.map((edge) => {
     const isNodeInPath = (id) => {
       const node = highlightedNodes.find((n) => n.id === id);

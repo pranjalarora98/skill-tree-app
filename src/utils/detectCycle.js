@@ -3,7 +3,7 @@ export function hasCycle({ nodes, edges }) {
   const stack = new Set();
 
   function dfs(nodeId) {
-    visitedNodes.add(nodeId);
+    visitedNodes.add(nodeId); // tracks all visited nodes
     stack.add(nodeId);
 
     const children = edges
@@ -18,7 +18,7 @@ export function hasCycle({ nodes, edges }) {
       }
     }
 
-    stack.delete(nodeId);
+    stack.delete(nodeId); // remove from recursion stack after exploring
     return false;
   }
 
@@ -28,5 +28,5 @@ export function hasCycle({ nodes, edges }) {
     }
   }
 
-  return false;
+  return false; // If no cycle found return
 }

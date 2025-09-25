@@ -83,6 +83,7 @@ function SkillBuilder() {
     [setEdges, setStoredEdges]
   );
 
+  //Whenever an edge connects between 2 nodes
   const handleConnect = useCallback(
     (params) => {
       const newEdge = {
@@ -130,6 +131,7 @@ function SkillBuilder() {
     [setNodes]
   );
 
+  // Toggles Node Completion status
   const handleNodeToggle = useCallback(
     (event, node) => {
       if (node.data.completed) {
@@ -161,6 +163,7 @@ function SkillBuilder() {
         .filter((e) => e.target === node.id)
         .map((e) => e.source);
 
+      // Ensure whether prerequisites are complete before unlocking
       const allPrerequisitesComplete = prerequisiteIds.every((id) => {
         const prereqNode = nodes.find((n) => n.id === id);
         return prereqNode?.data.completed;
