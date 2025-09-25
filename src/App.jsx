@@ -22,6 +22,7 @@ import toast from 'react-hot-toast';
 import { Button, Dialog, DialogContent, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { ThemeProvider } from '@mui/material/styles';
+import useDebounce from './hooks/useDebounce';
 import theme from './theme';
 import SkillForm from './components/SkillForm';
 import { hasCycle } from './utils/detectCycle';
@@ -51,6 +52,7 @@ function App() {
   const addSkillButtonRef = useRef(null);
 
   const isSearchVisible = nodes && nodes.length > 0;
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     const particleCount = 15;
@@ -141,8 +143,10 @@ function App() {
       if (node.data.completed) {
         setNodes((currentNodes) => {
           const toggleNode = (id, nodesToUpdate) => {
-            nodesToUpdate = nodesToUpdate.map((n) =>
-              n.id === id ? { ...n, data: { ...n.data, completed: false } } : n
+            nodesToUpdate = nodesToUpdate.map((currNode) =>
+              currNode.id === id
+                ? { ...currNode, data: { ...currNode.data, completed: false } }
+                : currNode
             );
 
             const dependents = edges
@@ -150,7 +154,6 @@ function App() {
               .map((e) => e.target);
 
             for (const depId of dependents) {
-              // Recursively lock dependents
               nodesToUpdate = toggleNode(depId, nodesToUpdate);
             }
             return nodesToUpdate;
@@ -179,8 +182,10 @@ function App() {
       }
 
       setNodes((currentNodes) =>
-        currentNodes.map((n) =>
-          n.id === node.id ? { ...n, data: { ...n.data, completed: true } } : n
+        currentNodes.map((currNode) =>
+          currNode.id === node.id
+            ? { ...currNode, data: { ...currNode.data, completed: true } }
+            : currNode
         )
       );
       toast.success('Skill unlocked!', { id: 'node-status' });
@@ -215,10 +220,10 @@ function App() {
   };
 
   const { highlightedNodes, highlightedEdges } = useMemo(() => {
-    return applySearchHighlighting(nodes, edges, searchTerm);
-  }, [nodes, edges, searchTerm]);
+    return applySearchHighlighting(nodes, edges, debouncedSearchTerm);
+  }, [nodes, edges, debouncedSearchTerm]);
 
-  const nodesWithAccessibility = highlightedNodes.map((node) => ({
+  const filteredNodes = highlightedNodes.map((node) => ({
     ...node,
     data: {
       ...node.data,
@@ -298,7 +303,7 @@ function App() {
             aria-label="Skill tree diagram"
           >
             <ReactFlow
-              nodes={nodesWithAccessibility}
+              nodes={filteredNodes}
               edges={highlightedEdges}
               onNodesChange={handleNodesChange}
               onEdgesChange={handleEdgesChange}

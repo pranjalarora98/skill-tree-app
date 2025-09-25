@@ -25,6 +25,10 @@ test('renders name, description and cost with correct classes', () => {
     expect(container.firstChild).toHaveClass('locked');
 
     data.completed = true;
-    rerender(<SkillNode data={data} isConnectable={false} />);
+    +  rerender(
+        <ReactFlowProvider>
+            <SkillNode data={data} isConnectable={false} />
+        </ReactFlowProvider>
+    );
     expect(container.firstChild).toHaveClass('completed');
 });

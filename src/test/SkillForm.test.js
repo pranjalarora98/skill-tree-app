@@ -44,3 +44,44 @@ test('calls onCancel when cancel clicked', async () => {
   await user.click(screen.getByRole('button', { name: /cancel/i }));
   expect(handleCancel).toHaveBeenCalledTimes(1);
 });
+
+test('shows validation error and focuses name input when submitting empty name', async () => {
+  const user = userEvent.setup();
+  const handleSubmit = jest.fn();
+  const handleCancel = jest.fn();
+
+  render(<SkillForm onSubmit={handleSubmit} onCancel={handleCancel} />);
+
+  // Ensure name is empty and submit - be explicit about the Add Skill button
+  const addBtn = screen.getByRole('button', { name: /add skill/i });
+
+  // disable native HTML5 validation so the component's handler runs in test env
+  const form = addBtn.closest('form');
+  if (form) form.noValidate = true;
+
+  await user.click(addBtn);
+
+  // Expect validation error shown and onSubmit not called
+  const alert = await screen.findByRole('alert');
+  expect(alert).toHaveTextContent(/Skill name is required/i);
+  expect(handleSubmit).not.toHaveBeenCalled();
+
+  // Name input should be focused
+  const nameInput = screen.getByLabelText(/Skill Name/i);
+  expect(document.activeElement).toBe(nameInput);
+});
+
+test('pressing Escape calls onCancel (handleKeyDown)', async () => {
+  const user = userEvent.setup();
+  const handleSubmit = jest.fn();
+  const handleCancel = jest.fn();
+
+  render(<SkillForm onSubmit={handleSubmit} onCancel={handleCancel} />);
+
+  const nameInput = screen.getByLabelText(/Skill Name/i);
+  nameInput.focus();
+
+  await user.keyboard('{Escape}');
+
+  expect(handleCancel).toHaveBeenCalledTimes(1);
+});
