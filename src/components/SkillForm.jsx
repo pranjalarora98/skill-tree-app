@@ -92,34 +92,40 @@ function SkillForm({ onSubmit, onCancel }) {
         onSubmit={handleSubmit}
         onKeyDown={handleKeyDown}
         sx={{ mt: 1 }}
+        aria-labelledby="skill-form-heading"
+        noValidate
       >
-        {Object.values(errors)
-          .filter(Boolean)
-          .map((msg, idx) => (
+        {Object.entries(errors).map(([field, msg]) =>
+          msg ? (
             <Typography
-              key={idx}
+              key={field}
               color="error"
               role="alert"
+              id={`${field}-error`}
               sx={{ mb: 1, textAlign: 'center' }}
             >
               {msg}
             </Typography>
-          ))}
+          ) : null
+        )}
 
         <Stack spacing={2.5}>
           <TextField
+            id="skill-name"
             label="Skill Name"
             placeholder="Skill Name"
             name="name"
             value={formData.name}
             onChange={handleChange}
             inputRef={nameInputRef}
-            required
             fullWidth
             error={!!errors.name}
             helperText={errors.name}
+            aria-describedby={errors.name ? 'name-error' : undefined}
+            aria-invalid={!!errors.name}
           />
           <TextField
+            id="skill-description"
             label="Description"
             placeholder="Description"
             name="description"
@@ -132,8 +138,13 @@ function SkillForm({ onSubmit, onCancel }) {
             variant="outlined"
             error={!!errors.description}
             helperText={errors.description}
+            aria-describedby={
+              errors.description ? 'description-error' : undefined
+            }
+            aria-invalid={!!errors.description}
           />
           <TextField
+            id="skill-cost"
             placeholder="Cost / Level"
             label="Cost / Level (optional)"
             name="cost"

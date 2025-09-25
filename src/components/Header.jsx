@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextField } from '@mui/material';
+import { Button, TextField, Box } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
 const Header = ({
@@ -12,9 +12,17 @@ const Header = ({
   handleReset,
 }) => {
   return (
-    <div className="header-container">
+    <header className="header-container" role="banner">
       <h1 className="welcome-text">Welcome to SkillBuilder</h1>
-      <div className="search-controls">
+
+      <Box
+        className="search-controls"
+        display="flex"
+        alignItems="center"
+        component="nav"
+        aria-label="Skill controls"
+        gap={1}
+      >
         {isSearchVisible && (
           <TextField
             className="search-field"
@@ -22,15 +30,18 @@ const Header = ({
             placeholder="Search by skill name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Search skills by name"
           />
         )}
+
         <Button
           ref={addSkillButtonRef}
           variant="contained"
           onClick={() => setShowForm(true)}
           onKeyDown={handleAddSkillKeyDown}
           startIcon={<AddIcon />}
-          sx={{ ml: 1 }}
+          sx={{ color: 'white' }}
+          aria-label="Add new skill"
         >
           Add New Skill
         </Button>
@@ -40,11 +51,12 @@ const Header = ({
           color="error"
           onClick={handleReset}
           sx={{ ml: 1 }}
+          aria-label="Clear all skills"
         >
           Clear
         </Button>
-      </div>
-    </div>
+      </Box>
+    </header>
   );
 };
 

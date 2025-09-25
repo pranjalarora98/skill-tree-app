@@ -315,7 +315,6 @@ npm run format
 npm run test
 ```
 
-before submitting.
 
 ---
 
