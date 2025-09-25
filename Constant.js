@@ -4,4 +4,5 @@ export const SKILL_CONSTANTS = {
     NODE_TYPE: 'skill',
     NODE_CLASS_DIRECT_MATCH: 'direct-match',
     NODE_CLASS_PATH_HIGHLIGHT: 'path-highlight',
+    CYCLE_ERROR: 'cycle-error'
 }

@@ -13,7 +13,7 @@ test('submits trimmed values and resets form', async () => {
 
   await user.type(
     screen.getByPlaceholderText(/Skill Name/i),
-    '  Swordsmanship  '
+    '  Test1Skill  '
   );
   await user.type(
     screen.getByPlaceholderText(/Description/i),
@@ -25,7 +25,7 @@ test('submits trimmed values and resets form', async () => {
 
   expect(handleSubmit).toHaveBeenCalledTimes(1);
   expect(handleSubmit).toHaveBeenCalledWith({
-    name: 'Swordsmanship',
+    name: 'Test1Skill',
     description: 'Slice things',
     cost: 5,
   });

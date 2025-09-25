@@ -127,7 +127,7 @@ describe('App.jsx extra coverage', () => {
         render(<App />);
 
         await user.click(screen.getByRole('button', { name: /add new skill/i }));
-        await user.type(screen.getByLabelText(/Skill Name/i), 'Alpha');
+        await user.type(screen.getByLabelText(/Skill Name/i), 'TestName1');
         await user.type(screen.getByLabelText(/Description/i), 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
@@ -136,17 +136,17 @@ describe('App.jsx extra coverage', () => {
         const descInput = await screen.findByLabelText(/Description/i);
         await user.clear(nameInput);
         await user.clear(descInput);
-        await user.type(nameInput, 'Beta');
+        await user.type(nameInput, 'TestName2');
         await user.type(descInput, 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
-        expect(screen.getByText('Alpha')).toBeInTheDocument();
-        expect(screen.getByText('Beta')).toBeInTheDocument();
+        expect(screen.getByText('TestName1')).toBeInTheDocument();
+        expect(screen.getByText('TestName2')).toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: /clear/i }));
 
-        expect(screen.queryByText('Alpha')).toBeNull();
-        expect(screen.queryByText('Beta')).toBeNull();
+        expect(screen.queryByText('TestName1')).toBeNull();
+        expect(screen.queryByText('TestName2')).toBeNull();
         expect(screen.queryByPlaceholderText(/Search by skill name/i)).toBeNull();
         expect(toast.success).toHaveBeenCalled();
     });
@@ -171,17 +171,17 @@ describe('App.jsx extra coverage', () => {
         await user.type(descInput, 'Description');
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
-        const aId = window.__rf_nodes.find((n) => n.data.name === 'A').id;
-        const bId = window.__rf_nodes.find((n) => n.data.name === 'B').id;
+        const firstNodeId = window.__rf_nodes.find((n) => n.data.name === 'A').id;
+        const secondNodeId = window.__rf_nodes.find((n) => n.data.name === 'B').id;
 
         await act(async () => {
             window.__rf_onConnect &&
-                window.__rf_onConnect({ source: aId, target: bId });
+                window.__rf_onConnect({ source: firstNodeId, target: secondNodeId });
         });
 
         await act(async () => {
             window.__rf_onConnect &&
-                window.__rf_onConnect({ source: bId, target: aId });
+                window.__rf_onConnect({ source: secondNodeId, target: firstNodeId });
         });
 
         expect(toast.error).toHaveBeenCalledWith(
@@ -449,17 +449,17 @@ describe('App.jsx extra coverage', () => {
 
         await user.click(screen.getByRole('button', { name: /add skill/i }));
 
-        const aId = window.__rf_nodes.find((n) => n.data.name === 'A').id;
-        const bId = window.__rf_nodes.find((n) => n.data.name === 'B').id;
+        const firstNodeId = window.__rf_nodes.find((n) => n.data.name === 'A').id;
+        const secondNodeId = window.__rf_nodes.find((n) => n.data.name === 'B').id;
         const cId = window.__rf_nodes.find((n) => n.data.name === 'C').id;
 
         await act(async () => {
             window.__rf_onConnect &&
-                window.__rf_onConnect({ source: aId, target: bId });
+                window.__rf_onConnect({ source: firstNodeId, target: secondNodeId });
         });
         await act(async () => {
             window.__rf_onConnect &&
-                window.__rf_onConnect({ source: bId, target: cId });
+                window.__rf_onConnect({ source: secondNodeId, target: cId });
         });
 
         const aEl = screen.getAllByText('A').pop();
@@ -497,7 +497,7 @@ test('successful connect stores edges in localStorage', async () => {
 
 
     await user.click(screen.getByRole('button', { name: /add new skill/i }));
-    await user.type(screen.getByLabelText(/Skill Name/i), 'ConnA');
+    await user.type(screen.getByLabelText(/Skill Name/i), 'SkillName10');
     await user.type(screen.getByLabelText(/Description/i), 'Description');
     await user.click(screen.getByRole('button', { name: /add skill/i }));
 
@@ -509,17 +509,17 @@ test('successful connect stores edges in localStorage', async () => {
     await user.clear(input);
     await user.clear(descInput);
 
-    await user.type(input, 'ConnB');
+    await user.type(input, 'SkillName3');
     await user.type(descInput, 'Test description');
 
     await user.click(screen.getByRole('button', { name: /add skill/i }));
 
-    const aId = window.__rf_nodes.find((n) => n.data.name === 'ConnA').id;
-    const bId = window.__rf_nodes.find((n) => n.data.name === 'ConnB').id;
+    const firstNodeId = window.__rf_nodes.find((n) => n.data.name === 'SkillName10').id;
+    const secondNodeId = window.__rf_nodes.find((n) => n.data.name === 'SkillName3').id;
 
     await act(async () => {
         window.__rf_onConnect &&
-            window.__rf_onConnect({ source: aId, target: bId });
+            window.__rf_onConnect({ source: firstNodeId, target: secondNodeId });
     });
 
     expect(localStorage.setItem).toHaveBeenCalledWith(

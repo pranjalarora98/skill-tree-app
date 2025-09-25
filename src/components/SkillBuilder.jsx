@@ -94,19 +94,19 @@ function SkillBuilder() {
           color: '#00bcd4',
         },
       };
-      const candidateEdges = addEdge(newEdge, edges);
+      const totalAddedEdges = addEdge(newEdge, edges);
 
-      const graph = { nodes, edges: candidateEdges };
+      const graph = { nodes, edges: totalAddedEdges };
 
       if (hasCycle(graph)) {
         toast.error('Adding this connection would create a cycle!', {
-          id: 'cycle-error',
+          id: SKILL_CONSTANTS.CYCLE_ERROR,
         });
         return;
       }
 
-      setEdges(candidateEdges);
-      setStoredEdges(candidateEdges);
+      setEdges(totalAddedEdges);
+      setStoredEdges(totalAddedEdges);
     },
     [edges, nodes, setEdges, setStoredEdges]
   );

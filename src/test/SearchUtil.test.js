@@ -81,16 +81,16 @@ describe('searchUtil', () => {
 
         test('does not mark unrelated nodes or edges when no path exists', () => {
             const nodes = [
-                { id: 'a', data: { name: 'Alpha' }, className: '' },
-                { id: 'b', data: { name: 'Beta' }, className: '' },
-                { id: 'c', data: { name: 'Gamma' }, className: '' },
+                { id: 'a', data: { name: 'TestName1' }, className: '' },
+                { id: 'b', data: { name: 'TestName2' }, className: '' },
+                { id: 'c', data: { name: 'TestName3' }, className: '' },
             ];
 
             const edges = [
                 { id: 'e-ab', source: 'a', target: 'b', style: {} },
             ];
 
-            const { highlightedNodes, highlightedEdges } = applySearchHighlighting(nodes, edges, 'Gamma');
+            const { highlightedNodes, highlightedEdges } = applySearchHighlighting(nodes, edges, 'TestName3');
 
             expect(highlightedNodes.find(n => n.id === 'c').className).toContain(SKILL_CONSTANTS.NODE_CLASS_DIRECT_MATCH);
             expect(highlightedNodes.find(n => n.id === 'a').className).not.toContain(SKILL_CONSTANTS.NODE_CLASS_PATH_HIGHLIGHT);

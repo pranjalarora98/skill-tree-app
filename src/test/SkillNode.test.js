@@ -6,8 +6,8 @@ import { jest, test, expect } from '@jest/globals';
 
 test('renders name, description and cost with correct classes', () => {
     const data = {
-        name: 'Fireball',
-        description: 'Throws fire',
+        name: 'Name1',
+        description: 'TestDescription',
         cost: 3,
         completed: false,
     };
@@ -18,8 +18,8 @@ test('renders name, description and cost with correct classes', () => {
         </ReactFlowProvider>
     );
 
-    expect(screen.getByText(/Fireball/i)).toBeInTheDocument();
-    expect(screen.getByText(/Throws fire/i)).toBeInTheDocument();
+    expect(screen.getByText(/Name1/i)).toBeInTheDocument();
+    expect(screen.getByText(/TestDescription/i)).toBeInTheDocument();
     //   expect(screen.getByText(/Cost: 3/i)).toBeInTheDocument();
 
     expect(container.firstChild).toHaveClass('locked');
